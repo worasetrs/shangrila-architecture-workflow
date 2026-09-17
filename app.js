@@ -1,188 +1,212 @@
 const phases = [
-  {id:'P0',title:'0 · Project control & source-of-truth',desc:'ล็อก revision baseline ก่อนให้ agent แตะ AutoCAD/Blender',tasks:[
-    ['สร้างโฟลเดอร์ 00_ORIGINAL และตั้งไฟล์ PDF ต้นฉบับเป็น read-only','ห้าม overwrite ไฟล์ที่ได้รับจากผู้ออกแบบ','CONTROL'],
-    ['ทำ Source Register ของ PDF ทุกชุด พร้อมวันที่ออกแบบและผู้สร้างไฟล์','แยก Architecture / Master Plan / Interior / Electrical-Fire / Sanitary / Render reference','CONTROL'],
-    ['กำหนดว่า “3D ล่าสุด” เป็น Design Intent ระดับไหน','Final / concept / pending approval ต้องชัดก่อนปรับ construction drawings','GATE'],
-    ['เปิดโมเดล 3D ต้นฉบับและบันทึก revision/version','ภาพ perspective อย่างเดียวไม่พอสำหรับวัดมิติ','3D'],
-    ['สร้าง mismatch register และตั้ง ID เช่น ARC-001, SITE-001','ทุกการแก้ต้อง trace กลับไปที่ issue ได้','QA'],
-    ['ตัดสิน master/site plan ตัวหลัก','ตรวจความต่างระหว่าง standalone master plan กับ site plan ในชุดสถาปัตย์','GATE'],
-    ['ตั้งระบบไฟล์ WORKING / REVIEW / ISSUED','ให้ Astra ทำงานเฉพาะ WORKING','CONTROL']
+  {id:'P0',title:'0 · Project control & source-of-truth',desc:'ล็อกไฟล์ต้นฉบับและกติกาการอ้างอิงก่อนเริ่มแก้แบบ',tasks:[
+    ['สร้างโฟลเดอร์ 00_ORIGINAL และเก็บไฟล์ที่ได้รับทั้งหมดแบบ read-only','PDF / ภาพ render / reference image ต้องไม่ถูก overwrite','CONTROL'],
+    ['ตรวจและอัปเดต docs/SOURCE_REGISTER.md','ระบุว่าไม่มีไฟล์ 3D editable ต้นฉบับ; มีเฉพาะ PDF + ภาพ 3D/render ที่ได้รับ','CONTROL'],
+    ['กำหนด Design Intent ล่าสุดจากภาพที่ได้รับ','ภาพ 3D/render ใช้ยืนยันรูปลักษณ์และองค์ประกอบเชิงภาพ ไม่ใช้เป็นแหล่งมิติจริง','GATE'],
+    ['กำหนด Dimension Authority','มิติ ระดับ plan/section/detail ให้ยึดจากแบบ PDF ที่มี dimension จนกว่าจะมี revision ที่ยืนยัน','GATE'],
+    ['สร้าง Mismatch Register และตั้ง ID เช่น ARC-001 / SITE-001','ทุกจุดที่ภาพ 3D ดูต่างจากแบบให้บันทึกก่อนแก้ ห้ามเดา','QA'],
+    ['ตัดสิน baseline ของ Master/Site Plan','ตรวจ standalone master plan กับ site plan ในชุดสถาปัตย์และระบุฉบับอ้างอิง','GATE'],
+    ['ตั้งโฟลเดอร์ 01_WORKING / 02_REVIEW / 03_FINAL','Astra/Computer Use แก้เฉพาะ WORKING','CONTROL']
   ]},
-  {id:'P1',title:'1 · Extract 3D design intent',desc:'ดึงข้อมูลจากโมเดลใหม่เป็นมุม orthographic ที่วัดได้',tasks:[
-    ['เปิด 3D model ใน Blender และตั้ง Units ให้ตรงกับ CAD','แนะนำ Metric; verify scale ด้วย dimension ที่รู้แน่','BLENDER'],
-    ['สร้าง Top Orthographic view ของทั้ง site','ใช้สำหรับ footprint/road/pool/parking overlay','BLENDER'],
-    ['สร้าง Front/Back/Left/Right Orthographic ของอาคารทุกหลัง','ห้ามใช้ perspective เป็นฐานวัด','BLENDER'],
-    ['แยก collections: Site, Building_A_Left, Building_B_Right, Pavilion, Guardhouse, Pods, Pool, Landscape','ชื่อ object/collection ต้องสม่ำเสมอ','BLENDER'],
-    ['Export footprint/outline เป็น DXF/SVG ที่ scale 1:1','เก็บไว้ใน 02_3D_EXPORT','BLENDER'],
-    ['บันทึก critical dimensions ที่ต้องยืนยันจากโมเดล','footprint, setbacks, floor heights, façade offsets, roof, driveway','QA'],
-    ['ทำ screenshot pack ก่อนแก้ CAD','Top + 4 elevations + key perspective','QA']
+  {id:'P1',title:'1 · Review latest 3D/render references',desc:'อ่านภาพ 3D ล่าสุดเป็น visual reference โดยไม่สมมติว่ามีโมเดลต้นฉบับ',tasks:[
+    ['รวบรวมภาพ 3D/render ล่าสุดทั้งหมดไว้ใน 00_ORIGINAL/RENDER_REFERENCE','ตั้งชื่อไฟล์ตามมุมมอง/วันที่ถ้าทราบ','CONTROL'],
+    ['ทำ Visual Reference Sheet','แยกสิ่งที่เห็นได้ชัด: อาคารซ้าย/ขวา, pavilion, guardhouse, pods, pool, road, landscape','QA'],
+    ['Mark จุดที่ “เห็นต่าง” จากแบบ PDF','บันทึกเป็น mismatch โดยยังไม่สรุปว่าต้องแก้จนกว่าจะตรวจ source drawing','QA'],
+    ['แยกข้อสังเกตเป็น Appearance / Geometry / Unknown','Appearance เช่น material; Geometry เช่นแนวผนัง; Unknown คือสิ่งที่ perspective ตัดสินไม่ได้','QA'],
+    ['ห้ามวัด footprint/setback/height จาก perspective','ถ้าไม่มีมิติใน PDF ให้ mark UNKNOWN และถามผู้ใช้','GATE']
   ]},
-  {id:'P2',title:'2 · Reconstruct / clean AutoCAD base from PDF',desc:'หากไม่มี DWG ให้ import/trace PDF ก่อน แล้วจัดเป็นฐาน CAD ที่สะอาด',tasks:[
-    ['สร้าง BASE_ARCH.dwg ใหม่ ไม่แก้ไฟล์ต้นฉบับ','ตั้ง units และ origin ก่อน import','AUTOCAD'],
-    ['PDFIMPORT/Attach แบบ Master/Site แล้ว calibrate scale','ใช้มิติที่ระบุในแบบ ไม่วัดจากภาพ raster','AUTOCAD'],
-    ['PDFIMPORT แปลนสถาปัตย์ชั้น 1–7, ดาดฟ้า, หลังคา','จัดแต่ละชั้นไว้คนละ layer/xref/block','AUTOCAD'],
-    ['Import/trace รูปด้าน 1–4 และรูปตัด A/B','ใช้สำหรับ cross-check ความสูงและ façade','AUTOCAD'],
-    ['Clean geometry: join, purge, overkill, remove PDF hatches/text artifacts','คง dimension/reference แยก layer','AUTOCAD'],
-    ['สร้าง layer standard EXISTING_PDF / NEW_3D / REVISION / DIM / GRID','ให้ดู overlay ได้ทันที','AUTOCAD'],
-    ['ตรวจ known grid ของอาคารหลัก 14.00 × 19.50 m','ถ้าไม่ตรง scale ให้หยุดและ recalibrate','QA'],
-    ['วางระดับชั้น known levels ใน elevation/section base','+0.10, +2.90, +5.75, +8.90, +11.75, +14.90, +17.75, +20.90, roof ≈ +23.00','QA']
+  {id:'P2',title:'2 · Reconstruct AutoCAD base from PDF',desc:'สร้าง DWG ใหม่จาก PDF เพราะไม่มีไฟล์ CAD/3D ต้นฉบับที่แก้ได้',tasks:[
+    ['สร้าง BASE_ARCH_WORKING.dwg ใหม่','ตั้ง Units / Origin / UCS ก่อนนำเข้า','AUTOCAD'],
+    ['PDFIMPORT/Attach Master/Site Plan แล้ว calibrate scale','ใช้ dimension ที่พิมพ์ในแบบเท่านั้น','AUTOCAD'],
+    ['PDFIMPORT/trace แปลนสถาปัตย์ทุกชั้นที่มีใน PDF','จัดแต่ละชั้นแยก layer/block/xref','AUTOCAD'],
+    ['Import/trace รูปด้านและรูปตัดที่มีใน PDF','ใช้ cross-check รูปทรงและระดับ','AUTOCAD'],
+    ['Clean geometry: OVERKILL / JOIN / PURGE อย่างระมัดระวัง','เก็บ reference และ dimension แยก layer','AUTOCAD'],
+    ['สร้าง layer standard: PDF_REF / TRACE_EXISTING / PROPOSED / REVISION / DIM / GRID / QA','ไม่มี layer NEW_3D เพราะไม่มี geometry 3D ต้นฉบับ','AUTOCAD'],
+    ['ตรวจ scale จากมิติที่ระบุจริงในแบบ','ถ้าขัดกันให้หยุดและลง mismatch','QA'],
+    ['Save milestone เป็น BASE_ARCH_v01.dwg','ห้ามทำงานต่อในไฟล์ import ดิบโดยไม่มี version','CONTROL']
   ]},
-  {id:'P3',title:'3 · Site plan reconciliation',desc:'ทำ site plan ให้ตรงกับ top view ของ 3D ใหม่ก่อนลงรายละเอียดอาคาร',tasks:[
-    ['Overlay NEW_3D footprint กับ site/master plan เดิม','ใช้ shared origin และ 1:1','AUTOCAD'],
-    ['แก้ตำแหน่ง Building A ฝั่งซ้าย','ล็อก footprint และ setback หลัง verify','SITE'],
-    ['แก้ตำแหน่ง Building B ฝั่งขวา','ล็อก footprint และ access','SITE'],
-    ['แก้ Pavilion กลาง','ตรวจ relationship กับ pool/road/parking','SITE'],
-    ['แก้ Guardhouse และ barrier ตาม 3D ล่าสุด','ตรวจ clear width / turning / gate operation','SITE'],
-    ['เพิ่ม/แก้ Pods และอาคารย่อย','กำหนด use ก่อนเขียนแบบก่อสร้าง','SITE'],
-    ['Trace รูปสระ/deck/island จาก Top Orthographic','ห้ามกะจาก bird-eye render','SITE'],
-    ['Re-layout internal road, curb, island, drop-off และ parking','นับจำนวนช่องจอดและตรวจ circulation','SITE'],
-    ['ปรับ landscape footprint เฉพาะที่กระทบงานสถาปัตย์','รายละเอียด landscape แยก discipline','SITE'],
-    ['Issue SITE REVIEW v1 และเทียบกับ 3D top view อีกครั้ง','ผ่าน gate ก่อนเริ่ม floor plans','GATE']
+  {id:'P3',title:'3 · Site plan reconciliation',desc:'เทียบ site/master plan กับภาพ 3D ล่าสุดโดยใช้ PDF เป็นฐานมิติ',tasks:[
+    ['Trace/clean site boundary, road, access, pool, building footprints จาก PDF','สร้างฐาน site ที่วัดได้ก่อน','SITE'],
+    ['ตรวจอาคารฝั่งซ้ายกับภาพ 3D ล่าสุด','ถ้าดูไม่ตรงให้บันทึก mismatch; ห้ามแก้ footprint จากภาพอย่างเดียว','SITE'],
+    ['ตรวจอาคารฝั่งขวากับภาพ 3D ล่าสุด','แยก visual difference กับ confirmed geometry difference','SITE'],
+    ['ตรวจ Pavilion กลาง','ถ้าตำแหน่ง/สัดส่วนไม่ชัดจาก PDF ให้ mark pending','SITE'],
+    ['ตรวจ Guardhouse / barrier / ทางเข้า','ใช้ภาพ 3D เป็น visual target แต่ dimension ต้องมาจากแบบหรือคำยืนยัน','SITE'],
+    ['ตรวจ Pods / อาคารย่อยที่เห็นในภาพ','หาว่ามีใน PDF หรือไม่; ถ้าไม่มีให้สร้าง issue ก่อนเขียนใหม่','SITE'],
+    ['ตรวจสระ/deck/island/parking/circulation','ใช้ PDF เป็นฐานและภาพเป็น design reference','SITE'],
+    ['ออก SITE REVIEW v1 พร้อม mismatch overlay/markup','ขอ approval ก่อนแก้ geometry ที่ไม่มีหลักฐานมิติ','GATE']
   ]},
-  {id:'P4',title:'4 · Building B — อาคารหลักฝั่งขวา',desc:'แก้แบบ 7 ชั้นเดิมให้ตรง massing/façade ของ 3D ใหม่',tasks:[
-    ['ตรวจว่า footprint/layout ภายในเดิมยังใช้ได้กี่เปอร์เซ็นต์','แยก “plan change” กับ “façade-only change”','ARCH'],
-    ['แก้ Floor Plan ชั้น 1','parking/core/lift/stair/entrance ต้องสัมพันธ์ site ใหม่','ARCH'],
-    ['แก้ Floor Plan ชั้น 2','ตรวจ double-height/open void/terrace','ARCH'],
-    ['แก้ Floor Plan ชั้น 3','ตรวจ bedroom/fitness/open void กับ façade ใหม่','ARCH'],
-    ['แก้ Floor Plan ชั้น 4','ตรวจระเบียงและช่องเปิดกับ façade ใหม่','ARCH'],
-    ['แก้ Floor Plan ชั้น 5','ตรวจ bedroom/fitness/open void กับ façade ใหม่','ARCH'],
-    ['แก้ Floor Plan ชั้น 6','ตรวจระเบียงและช่องเปิดกับ façade ใหม่','ARCH'],
-    ['แก้ Floor Plan ชั้น 7','ตรวจ bedroom/fitness/roof interface','ARCH'],
-    ['แก้ Roof Deck + Roof Plan','match roof profile จาก model ใหม่','ARCH'],
-    ['สร้าง Elevation 1–4 ใหม่จาก geometry ที่อนุมัติ','เทียบ side wall / fins / balcony / glazing / parapet','ARCH'],
-    ['แก้ Section A/B','floor/ceiling/void/stair/roof ต้องสัมพันธ์ elevations','ARCH'],
-    ['อัปเดต door/window tags หลัง plan change','อย่า reuse tag ถ้าขนาด/ชนิดเปลี่ยน','ARCH'],
-    ['ตรวจพื้นที่/จำนวนห้องหลังแก้','ยืนยัน requirement 35 ห้องว่ายังคงหรือมี revision','GATE']
+  {id:'P4',title:'4 · Existing architectural drawing review',desc:'ตรวจแบบอาคารที่มีอยู่ทีละชุดก่อนตัดสินว่าอะไรต้องแก้',tasks:[
+    ['ทำ Drawing Index จาก PDF สถาปัตย์','ระบุหน้า/ประเภท: plans, elevations, sections, details, schedules','CONTROL'],
+    ['ตรวจว่าแบบชุด 7 ชั้น/35 ห้องเป็นอาคารใดในภาพ 3D','ห้ามฟันธงซ้ายหรือขวาจนกว่าจะยืนยันจาก source','GATE'],
+    ['เทียบ floor plans กับ elevations/sections ภายใน PDF เอง','หา inconsistency ของแบบเดิมก่อนเทียบภาพ 3D','QA'],
+    ['เทียบ façade/openings/roof กับภาพ 3D ล่าสุด','บันทึก mismatch เป็นรายการ ไม่แก้ทันที','ARCH'],
+    ['แยก mismatch เป็น plan-impact / elevation-only / material-only / unknown','ใช้กำหนด effort และลำดับแก้','QA'],
+    ['ขอคำยืนยันผู้ใช้ในจุดที่ภาพอย่างเดียวตัดสินไม่ได้','เช่น footprint, จำนวนชั้น, ระยะถอย, ความสูง','GATE']
   ]},
-  {id:'P5',title:'5 · Building A — อาคารฝั่งซ้าย',desc:'สร้างชุดแบบใหม่จาก 3D + requirement จริง',tasks:[
-    ['กำหนด program/function ของอาคารฝั่งซ้าย','จำนวนชั้น ห้อง/ยูนิต และ circulation ต้องได้รับการยืนยัน','GATE'],
-    ['Export footprint + elevations จาก 3D','ใช้เป็น design intent ไม่ใช่ construction geometry โดยอัตโนมัติ','3D'],
-    ['สร้าง grids/levels และ structural coordination zones','ต้องส่งให้ทีมโครงสร้างตรวจภายหลัง','ARCH'],
-    ['เขียน Floor Plans ทุกชั้น','เพิ่ม room names, dimensions, door/window tags','ARCH'],
-    ['เขียน Roof Plan','drain/parapet/service access ต้องถูกกำหนด','ARCH'],
-    ['เขียน Elevations 4 ด้าน','กรอบโค้ง/ช่องเปิด/module façade ตาม 3D','ARCH'],
-    ['เขียน Sections อย่างน้อย 2 แนวหลัก','ผ่าน core/stair และ façade สำคัญ','ARCH'],
-    ['สร้าง Door/Window schedule ของอาคารนี้','แยกหรือรวม master schedule ตามมาตรฐานโครงการ','ARCH']
+  {id:'P5',title:'5 · Revise 2D architecture after approval',desc:'แก้เฉพาะ mismatch ที่ยืนยันแล้วใน AutoCAD',tasks:[
+    ['สร้าง revision copy จาก BASE_ARCH ไม่แก้ baseline','เช่น ARCH_REV_A_WORKING.dwg','CONTROL'],
+    ['แก้ Site Plan ตามรายการ approved','ทุกการแก้ผูกกับ mismatch ID','ARCH'],
+    ['แก้ Floor Plan เฉพาะส่วนที่ได้รับการยืนยัน','ไม่ปรับ layout จากความรู้สึกตาม render','ARCH'],
+    ['แก้ Elevations ให้สะท้อน visual design intent ที่อนุมัติ','façade/openings/canopy/parapet/material zones','ARCH'],
+    ['แก้ Sections หาก geometry/level กระทบจริง','คง level เดิมเมื่อไม่มี revision ยืนยัน','ARCH'],
+    ['อัปเดต Door/Window tags และ schedules เมื่อ geometry เปลี่ยน','ห้ามเปลี่ยน schedule เพื่อให้ “ดูเข้ากัน” โดยไม่มีหลักฐาน','SCHEDULE'],
+    ['อัปเดต architectural details ที่ได้รับผลกระทบ','stairs/toilets/railings/façade ฯลฯ','DETAIL'],
+    ['ออก REVIEW PDF พร้อม revision clouds/issue IDs','ใช้ตรวจรอบก่อน Architecture Freeze','QA']
   ]},
-  {id:'P6',title:'6 · Pavilion / Guardhouse / Pods',desc:'อาคารย่อยต้องมีแบบก่อสร้างเฉพาะ ไม่จบแค่ footprint',tasks:[
-    ['Pavilion: plan + roof + elevations + section','ตรวจ curtain wall/glazing/MEP zones','ARCH'],
-    ['Guardhouse: plan + elevations + section + barrier interface','verify ขนาดใหม่จาก 3D','ARCH'],
-    ['Pod แต่ละชนิด: ระบุ function และ repeatable type','ลดงานด้วย typical detail เมื่อ geometry ซ้ำ','ARCH'],
-    ['ทำ door/window/material schedule สำหรับอาคารย่อย','ถ้ารวม master schedule ให้มี building prefix','ARCH'],
-    ['ตรวจ accessibility และ clearances ที่เกี่ยวข้อง','ให้ผู้รับผิดชอบวิชาชีพตรวจ requirement ก่อน issue','QA']
+  {id:'P6',title:'6 · Build new Blender model from drawings',desc:'สร้าง 3D ใหม่จาก DWG/PDF ที่แก้แล้ว แล้วใช้ภาพ render เป็น visual target',tasks:[
+    ['เริ่ม SHANGRILA_MASTER.blend ใหม่จาก clean template','เพราะไม่มีโมเดล 3D ต้นฉบับให้แก้','BLENDER'],
+    ['ตั้ง Metric units / origin / collections','ให้สอดคล้องกับ AutoCAD','BLENDER'],
+    ['Import/Link revised CAD geometry','แยก source import collection และล็อก reference','BLENDER'],
+    ['ขึ้น massing จาก plan + section/elevation dimensions','ห้ามใช้ perspective เป็นตัวกำหนด scale','BLENDER'],
+    ['ขึ้น walls/slabs/cores/openings/roof ตาม revised drawings','ใช้ repeatable modules/instances เมื่อเหมาะสม','BLENDER'],
+    ['ปรับ façade/material/visual language ให้เข้าใกล้ภาพ 3D ล่าสุด','ภาพ reference มีอำนาจด้าน appearance ไม่ใช่มิติ','BLENDER'],
+    ['ขึ้น Pavilion/Guardhouse/Pods/Pool เฉพาะส่วนที่มีข้อมูลพอ','ส่วนที่ไม่พอให้ใช้ placeholder และ tag UNKNOWN','BLENDER'],
+    ['สร้าง review cameras: Top/Front/Back/Left/Right/Bird-eye','ใช้มุมเดิมทุกรอบเพื่อเทียบ drift','QA'],
+    ['Render Draft v1 และทำ side-by-side กับภาพ reference','บันทึกสิ่งที่ต่างและแยก geometry vs appearance','QA']
   ]},
-  {id:'P7',title:'7 · Architectural details & schedules',desc:'อัปเดตทุก detail หลัง geometry freeze',tasks:[
-    ['ตรวจ/แก้ Stair ST-1 ทุกระดับ','riser/tread/landing/headroom ให้สัมพันธ์ levels ใหม่','DETAIL'],
-    ['ตรวจ/แก้ Stair ST-2 ทุกระดับ','verify exit route และ door swing','DETAIL'],
-    ['อัปเดตห้องน้ำคนพิการและห้องน้ำ 1–5','dimensions/levels/finish/slope/fixtures','DETAIL'],
-    ['อัปเดต Door Schedule','D1–D23 ในชุดเดิมเป็น baseline; revision ใหม่อาจเพิ่ม/ลด','SCHEDULE'],
-    ['อัปเดต Window Schedule','W1–W17 ในชุดเดิมเป็น baseline; match façade ใหม่','SCHEDULE'],
-    ['อัปเดต façade / canopy / railing / parapet details','รายละเอียดที่ 3D แสดงแต่ PDF เดิมไม่มีต้องสร้างใหม่','DETAIL'],
-    ['อัปเดต material/finish notes','วัสดุจาก render ต้อง translate เป็น specification ที่ตรวจสอบได้','DETAIL'],
-    ['อัปเดต drawing index และ sheet numbering','เพิ่ม Building A/Pavilion/Guardhouse/Pods','CONTROL']
+  {id:'P7',title:'7 · CAD ↔ Blender QA',desc:'ตรวจว่าโมเดลที่สร้างใหม่ตรงกับ revised drawings จริง',tasks:[
+    ['Compare plan footprint CAD กับ Blender Top Orthographic','ใช้ scale/origin เดียวกัน','QA'],
+    ['Compare elevations CAD กับ Blender orthographic 4 ด้าน','ตรวจ openings/façade/roof profile','QA'],
+    ['Compare section levels กับ Blender Z values','ทุก level ที่มี dimension ต้องตรง','QA'],
+    ['ตรวจ stair/lift/void/core continuity','cross-floor consistency','QA'],
+    ['ตรวจ door/window tags กับ geometry','ไม่มี orphan/missing tags','QA'],
+    ['ปิด mismatch ทีละ ID พร้อมหลักฐาน Before/After','ห้าม mark done ด้วย visual similarity อย่างเดียว','QA'],
+    ['สร้าง Architecture Freeze v1','Freeze เมื่อ source + CAD + Blender sync กันในส่วนที่อนุมัติ','GATE']
   ]},
-  {id:'P8',title:'8 · Blender production model',desc:'สร้าง 3D master ที่ตรงกับ revised CAD ไม่ใช่แค่ภาพ render',tasks:[
-    ['เริ่มไฟล์ SHANGRILA_MASTER.blend จาก clean template','ตั้ง units/origin/collections ก่อน import','BLENDER'],
-    ['Link/import revised Site CAD','ล็อก source geometry และเก็บ import collection แยก','BLENDER'],
-    ['Link/import Building A + Building B CAD','หนึ่ง building ต่อ collection/library','BLENDER'],
-    ['ขึ้น slabs/walls/cores/openings จาก revised plans','ใช้ modifier/instances เพื่อลดการทำซ้ำ','BLENDER'],
-    ['ขึ้น façade, balcony, fins, glazing, roof','cross-check orthographic กับ CAD','BLENDER'],
-    ['ขึ้น Pavilion / Guardhouse / Pods / Pool','ใช้ site coordinates เดียวกัน','BLENDER'],
-    ['ใส่ material naming standard','เช่น MAT_Concrete_White, MAT_Glass_Clear, MAT_Metal_Grey','BLENDER'],
-    ['ทำ low-detail MEP/service placeholders เฉพาะจุด coordination','ไม่ต้อง model ระบบเต็มก่อน architecture freeze','BLENDER'],
-    ['สร้าง review cameras: top + 4 sides + sections + bird-eye','สำหรับ Astra/คนตรวจใช้ view เดิมทุกรอบ','QA'],
-    ['บันทึก render draft หลัง Architecture Freeze','ใช้เทียบ design intent และ detect drift','QA']
+  {id:'P8',title:'8 · MEP coordination after Architecture Freeze',desc:'ค่อยประสานแบบระบบหลังสถาปัตย์นิ่ง',tasks:[
+    ['Overlay Electrical/Fire PDF กับ revised architecture','ตรวจตำแหน่งอุปกรณ์กับ partition/ceiling ใหม่','MEP'],
+    ['Overlay Sanitary PDF กับ revised architecture','ตรวจ wet core/shaft/fixture locations','MEP'],
+    ['สร้าง Architecture ↔ MEP clash list','AI ช่วย mark แต่ engineer ต้องยืนยันระบบ','MEP'],
+    ['ส่งจุดกระทบให้ผู้รับผิดชอบระบบตรวจ','ห้าม AI เปลี่ยน sizing/code requirement เอง','GATE'],
+    ['อัปเดต openings/shafts ใน architecture ตามผล coordination','loop จน critical clash = 0 หรือมี approved exception','MEP']
   ]},
-  {id:'P9',title:'9 · Architecture QA / cross-check',desc:'ตรวจ DWG ↔ 3D ↔ PDF source แบบเป็นระบบ',tasks:[
-    ['Compare plan footprint CAD กับ Blender top view','tolerance ต้องตั้งไว้ก่อนตรวจ','QA'],
-    ['Compare elevations CAD กับ Blender ortho 4 ด้าน','เปิด overlay 50% opacity','QA'],
-    ['Compare section levels กับ Blender Z values','ทุก floor/roof level ต้องตรง','QA'],
-    ['ตรวจ door/window tag ทุกจุดกับ schedules','ไม่มี orphan/missing tags','QA'],
-    ['ตรวจ stairs/voids/lifts ข้ามทุกชั้น','core continuity','QA'],
-    ['ตรวจ site access/parking/guardhouse/pool setbacks','ใช้ dimension จริง','QA'],
-    ['ปิด mismatch issues ทีละ ID พร้อม screenshot evidence','ห้าม mark done ด้วยคำบอกเล่าอย่างเดียว','QA'],
-    ['สร้าง Architecture Freeze v1','หลัง freeze ถึงเริ่ม MEP coordination จริง','GATE']
-  ]},
-  {id:'P10',title:'10 · MEP coordination after Architecture Freeze',desc:'ใช้แบบระบบเดิมเป็นข้อมูลอ้างอิง แล้วให้วิศวกรปรับตาม architecture ใหม่',tasks:[
-    ['Overlay Electrical/Fire plans กับ revised floors','ย้ายอุปกรณ์เฉพาะหลัง room/partition freeze','MEP'],
-    ['Overlay Sanitary plans กับ revised floors','รักษา wet core/shaft เมื่อทำได้','MEP'],
-    ['ตรวจ shafts/risers/plant/tank/pump locations','ห้ามตัดพื้นที่ระบบโดยไม่ review','MEP'],
-    ['สร้าง clash list Architecture ↔ Electrical/Fire ↔ Sanitary','แยก critical / medium / cosmetic','MEP'],
-    ['ส่ง coordination markups ให้ engineer','AI ช่วย draft แต่ engineer ยืนยัน sizing/code','GATE'],
-    ['รับกลับ revised MEP แล้ว update architectural openings/shafts','loop จน clash critical = 0','MEP']
-  ]},
-  {id:'P11',title:'11 · Final architectural drawing set',desc:'แพ็กชุดแบบสถาปัตย์ให้ครบและตรวจได้',tasks:[
-    ['Cover / Drawing Index / General notes','revision และ issue status ชัดเจน','DELIVER'],
-    ['Location / land / site context drawings','ใช้ข้อมูล version ที่อนุมัติ','DELIVER'],
-    ['Master/Site Plan + Enlarged Site Plan','รวม access, parking, pool, buildings, levels','DELIVER'],
-    ['Building B Floor Plans 1–7 + Roof Deck + Roof','ครบ dimensions/tags/levels','DELIVER'],
-    ['Building B Elevations 1–4 + Sections A/B','match revised 3D','DELIVER'],
-    ['Building A plans/elevations/sections/roof','ครบตามจำนวนชั้นจริง','DELIVER'],
-    ['Pavilion + Guardhouse + Pods architectural sheets','เฉพาะงานที่ก่อสร้างจริง','DELIVER'],
-    ['Stair / toilet / façade / railing / canopy details','details updated to current design','DELIVER'],
-    ['Door + Window schedules','ไม่มี tag ซ้ำ/ขาด','DELIVER'],
-    ['Export issued PDF set','ตั้งชื่อไฟล์มี revision/date','DELIVER'],
-    ['Archive issued DWG set','bind/clean xrefs ตามมาตรฐานทีม','DELIVER'],
-    ['Archive final .blend + assets','Pack Resources หรือใช้ relative paths','DELIVER'],
-    ['Export coordination model','FBX/OBJ/IFC ตามที่ทีมต้องใช้','DELIVER'],
-    ['ออก Final QA report + unresolved items','ถ้ายังมี unresolved ต้องระบุ ไม่ปิดบัง','DELIVER']
+  {id:'P9',title:'9 · Final architectural drawing set',desc:'ออกชุดแบบที่ trace กลับไปยัง source และ revision ได้',tasks:[
+    ['Cover / Drawing Index / General Notes','revision/date/status ต้องชัด','DELIVER'],
+    ['Location / Master / Site / Enlarged Site Plans','ใช้ revision ที่ approved','DELIVER'],
+    ['Floor Plans ทุกชั้นที่อยู่ใน scope','dimensions/tags/levels ครบ','DELIVER'],
+    ['Roof Plans / Elevations / Sections','sync กับ Blender และ source dimensions','DELIVER'],
+    ['Ancillary building sheets เฉพาะส่วนที่ยืนยันให้ก่อสร้าง','Pavilion/Guardhouse/Pods ตาม scope จริง','DELIVER'],
+    ['Architectural Details + Door/Window Schedules','updated to approved revision','DELIVER'],
+    ['Export Issued PDF Set','ตั้งชื่อ revision/date ชัด','DELIVER'],
+    ['Archive Issued DWG Set','clean xrefs / relative paths ตามมาตรฐานทีม','DELIVER'],
+    ['Archive final .blend + linked assets','Pack Resources หรือ relative paths','DELIVER'],
+    ['ออก Final QA + unresolved items','UNKNOWN/PENDING ต้องแสดง ไม่ปิดบัง','DELIVER']
   ]}
 ];
 
 const prompts = [
   ['Astra · Master control prompt',`คุณเป็น Architecture Coordination Agent ของโครงการ Shangri-La Hua Hin
-เป้าหมายคือทำให้แบบสถาปัตยกรรม 2D และโมเดล 3D ตรงกับ Design Intent ล่าสุด โดยใช้ AutoCAD + Blender + Computer Use
+
+สถานะ source ที่ต้องยึด:
+- ไม่มีไฟล์ 3D editable ต้นฉบับ (.blend/.fbx/.skp/.max/BIM)
+- มี PDF แบบสถาปัตย์ / Master Plan / Electrical-Fire / Sanitary / Interior และภาพ 3D-render reference ที่ผู้ใช้ให้
+- ภาพ 3D/render = Visual Design Intent เท่านั้น ไม่ใช่แหล่งมิติจริง
+- มิติ/ระดับ/plan/section/detail ให้ยึดจาก PDF ที่มี dimension จนกว่าจะมี revision ที่ผู้ใช้ยืนยัน
+
+เป้าหมายคือสร้าง AutoCAD working set จาก PDF, resolve mismatch ที่ได้รับการอนุมัติ, แล้วสร้าง Blender model ใหม่จาก revised drawings ให้ visual ใกล้ภาพ reference ล่าสุด
 
 กติกา:
-1) ห้าม overwrite ORIGINAL ทุกกรณี ให้ Save As ไป WORKING ก่อน
-2) ก่อนแก้ทุก phase ให้ตรวจ source และบอกไฟล์/หน้า/มิติที่ใช้
-3) ห้ามวัดระยะจากภาพ perspective หากมี CAD/orthographic/dimension จริง
-4) แยก Existing PDF กับ New 3D เป็นคนละ layer/collection
-5) ทุก mismatch ให้สร้าง Issue ID พร้อม Before/After screenshot
-6) ถ้าข้อมูลขัดกันหรือไม่มี dimension ให้หยุดและถามก่อนเดา
-7) หลังแต่ละ phase ให้ run QA และสรุปสิ่งที่เปลี่ยน
-8) อย่าแก้ MEP แบบเต็มจน Architecture Freeze
+1) ห้าม overwrite 00_ORIGINAL
+2) อ่าน docs/SOURCE_REGISTER.md ก่อนทุก phase
+3) ห้ามสมมติว่ามี 3D model ต้นฉบับ
+4) ห้ามวัดมิติจาก perspective render
+5) ถ้าภาพ 3D ดูไม่ตรงกับ PDF ให้สร้าง mismatch ID ก่อน ไม่แก้ทันที
+6) ถ้าไม่มี dimension/หลักฐาน ให้ mark UNKNOWN และถามผู้ใช้
+7) ทำงานเฉพาะ 01_WORKING และบันทึก version milestone
+8) หลังแต่ละ phase ทำ QA + Before/After screenshot
+9) อย่าแก้ MEP แบบเต็มก่อน Architecture Freeze
 
-เริ่มจาก Source Register + Revision Baseline และยังไม่แก้ไฟล์จนกว่าจะสรุป conflict list ให้ฉันตรวจ`],
-  ['AutoCAD · PDF → clean base',`เปิด AutoCAD และสร้าง BASE_ARCH_WORKING.dwg ใหม่
-นำเข้า PDF สถาปัตย์และ Master/Site เป็น reference โดยห้ามแก้ original
-Calibrate scale จาก dimension ที่ระบุในแบบ; สำหรับอาคารหลักใช้กริดที่มีมิติ 14.00 x 19.50 m เป็น cross-check
-สร้าง layers: EXISTING_PDF, EXISTING_TRACE, NEW_3D, GRID, DIM, TEXT, REVISION, QA
-ทำความสะอาด geometry ที่ import และจัด floor plans 1–7, roof deck, roof, elevations, sections เป็น blocks/xrefs ที่ตรวจได้
-หยุดถ้า scale ไม่ตรงกันเกิน tolerance และรายงานก่อนแก้ต่อ`],
-  ['Blender · Export design intent',`เปิดโมเดล 3D ล่าสุดใน Blender
-ตรวจ Units/Scale ก่อนทำอะไร
-สร้าง collection แยก Site, Building_A_Left, Building_B_Right, Pavilion, Guardhouse, Pods, Pool, Landscape
-สร้าง Top Orthographic และ Front/Back/Left/Right Orthographic
-Export footprint/outlines ที่ scale 1:1 สำหรับนำไป overlay ใน AutoCAD
-ห้ามเปลี่ยน geometry ของ design model ใน phase นี้
-บันทึก screenshots และ dimension summary ที่จำเป็นต่อการแก้ CAD`],
+เริ่มจากตรวจ Source Register → สร้าง mismatch list → รอ approval ก่อนแก้ geometry`],
+
+  ['AutoCAD · PDF → clean measurable base',`เปิด AutoCAD และสร้าง BASE_ARCH_WORKING.dwg ใหม่
+
+ข้อเท็จจริง: ไม่มี DWG ต้นฉบับและไม่มี editable 3D model ให้ดึง geometry
+ดังนั้นให้สร้างฐาน CAD จาก PDF เท่านั้น
+
+ขั้นตอน:
+1) ตั้ง Units / Origin / UCS
+2) Attach/PDFIMPORT Master Plan และ Architectural PDF
+3) Calibrate scale จาก dimension ที่พิมพ์ในแบบ ห้ามวัดจากภาพ perspective
+4) Trace/Clean plan, elevation, section ที่จำเป็น
+5) สร้าง layers: PDF_REF, TRACE_EXISTING, PROPOSED, REVISION, GRID, DIM, TEXT, QA
+6) แยก floor/section/elevation เป็น block/xref ที่ตรวจย้อนกลับได้
+7) ถ้ามิติจาก PDF สองหน้าขัดกัน ให้หยุดและสร้าง mismatch ID
+8) Save เป็น BASE_ARCH_v01.dwg
+
+ห้ามสร้าง layer NEW_3D หรืออ้างว่า import geometry จาก 3D เพราะไม่มี source ดังกล่าว`],
+
+  ['Astra · Visual reference review',`อ่านภาพ 3D/render ล่าสุดที่ผู้ใช้ให้เป็น Visual Design Intent
+
+ให้ทำตาราง:
+- Element
+- What is visible in render
+- What PDF says
+- Difference type: Appearance / Geometry / Unknown
+- Evidence
+- Mismatch ID
+- Proposed next action
+
+ตรวจอย่างน้อย: อาคารซ้าย, อาคารขวา, pavilion, guardhouse, pods, pool, road/parking, landscape
+
+สำคัญ:
+- ห้ามวัดระยะจาก perspective
+- ห้ามสรุปว่าอาคารต้องแก้ทั้งหลังเพียงเพราะภาพดูต่าง
+- ห้ามฟันธงว่าแบบ 7 ชั้นเป็นอาคารซ้ายหรือขวาจนกว่าจะมีหลักฐาน
+- ถ้าตัดสินไม่ได้ให้เขียน UNKNOWN และถามผู้ใช้`],
+
+  ['Blender · Rebuild from revised drawings',`สร้าง SHANGRILA_MASTER.blend ใหม่จากศูนย์ เพราะไม่มีโมเดล 3D ต้นฉบับ
+
+ใช้ revised AutoCAD drawings เป็น geometry authority และใช้ภาพ 3D/render ล่าสุดเป็น visual reference
+
+ขั้นตอน:
+1) ตั้ง Metric units และ origin ให้ตรง CAD
+2) Import/Link revised CAD
+3) สร้าง collections ตามอาคาร/องค์ประกอบที่ยืนยันแล้ว
+4) ขึ้น massing จาก plan + elevation + section dimensions
+5) ขึ้น wall/slab/core/openings/roof ตาม drawings
+6) ปรับ façade/material/visual language ให้ใกล้ render โดยไม่เปลี่ยน dimension เอง
+7) ส่วนที่ไม่มีข้อมูลพอให้ใช้ placeholder + tag UNKNOWN
+8) สร้าง Top/Front/Back/Left/Right/Bird-eye cameras
+9) Render Draft v1 และทำ mismatch list รอบใหม่
+
+ห้าม reverse-engineer scale จาก perspective image`],
+
   ['Computer Use · guarded execution',`ทำงานบน Desktop แบบ guarded execution:
-- ก่อนแตะไฟล์: Save As / duplicate ไปโฟลเดอร์ WORKING
-- ก่อน action ชุดใหญ่: screenshot Before
-- ทำทีละ phase ไม่ข้าม approval gate
-- หลัง action: ตรวจ units, dimensions, layer/collection, file path และ screenshot After
-- หาก dialog ไม่แน่ใจ, file conflict, missing reference หรือ dimension ขัดกัน ให้หยุดและถาม
-- ห้ามกด overwrite original, purge แบบย้อนกลับไม่ได้, delete source, หรือ issue final drawings โดยไม่มี approval`],
-  ['QA · CAD ↔ 3D overlay',`ตรวจ revised CAD กับ Blender โดยใช้มุม Orthographic เดียวกัน
-1) Top: footprint/site/road/pool/parking
-2) Front/Back/Left/Right: façade/openings/balcony/roof
-3) Sections: floor levels/voids/stairs/roof
-ทำ mismatch table: ID, location, CAD value, 3D value, source, proposed action, status
-อย่า mark PASS หากเป็นเพียง visual similarity ต้องมี dimension หรือ overlay evidence`],
-  ['Final issue gate',`ก่อนออกชุดแบบสถาปัตยกรรม FINAL ให้ตรวจ:
-- Drawing index ครบ
-- Site + all buildings + ancillary structures ครบ
+- อ่าน docs/SOURCE_REGISTER.md ก่อน
+- ทำเฉพาะไฟล์ใน 01_WORKING
+- ก่อน action ชุดใหญ่ให้ screenshot Before
+- หลัง action ตรวจ file path / units / scale / layers / version แล้ว screenshot After
+- ทุก geometry change ต้องอ้าง mismatch ID ที่ approved
+- ถ้า dialog ไม่แน่ใจ, source หาย, dimension ขัดกัน หรือจำเป็นต้องเดา ให้หยุดและถาม
+- ห้าม overwrite/delete 00_ORIGINAL
+- ห้ามอ้างว่ามี editable 3D source model
+- ห้าม issue FINAL โดยไม่มี approval gate`],
+
+  ['QA · CAD ↔ rebuilt Blender ↔ source',`ตรวจ revised CAD กับ Blender ที่สร้างใหม่ และตรวจย้อนกลับไปยัง PDF source
+
+1) Plan: CAD footprint vs Blender Top Orthographic
+2) Elevation: openings/façade/roof vs Blender orthographic
+3) Section: levels/void/stairs/roof vs Blender Z values
+4) Visual intent: render reference ใช้ตรวจ appearance เท่านั้น
+
+ทำ mismatch table: ID, location, PDF source, CAD value, Blender value, render observation, status
+PASS ได้เมื่อ geometry ตรงกับ source/approved revision ไม่ใช่เพียง “ดูคล้าย”`],
+
+  ['Final issue gate',`ก่อนออกชุดแบบ FINAL ให้ตรวจ:
+- SOURCE_REGISTER เป็นปัจจุบัน
+- Mismatch Register ไม่มี critical item ค้าง หรือมี approved exception
+- Drawing index ครบตาม scope ที่ยืนยันจริง
 - Plans/elevations/sections/details/schedules sync กัน
-- Door/window tags ไม่มี missing/duplicate
-- Floor/roof levels sync กับ 3D
-- Critical architecture/MEP clashes = 0 หรือมี signed exception
-- Revision/date/file names ถูกต้อง
+- Revised CAD ↔ rebuilt Blender ตรงกันใน geometry ที่วัดได้
+- Render reference ถูกใช้เฉพาะ visual intent ไม่ใช่ dimension source
+- MEP critical clashes = 0 หรือมี signed/approved exception
 - DWG/PDF/BLEND archive เปิดได้จากเครื่องอื่น
-สรุป unresolved items แยกต่างหาก ห้ามซ่อนหรือเดาแก้เอง`]
+- UNKNOWN/PENDING ทุกข้อถูกแสดงใน Final QA
+
+ห้ามเติมข้อมูลที่ source ไม่รองรับเพื่อให้แบบดูสมบูรณ์`]
 ];
 
-const stateKey='shangrila_arch_checklist_v1';
+const stateKey='shangrila_arch_checklist_v2';
 const state=JSON.parse(localStorage.getItem(stateKey)||'{}');
 const phasesEl=document.getElementById('phases');
 const searchInput=document.getElementById('searchInput');
@@ -205,7 +229,7 @@ function render(){
     const sec=document.createElement('section');sec.className='phase';sec.dataset.phase=p.id;
     sec.innerHTML=`<div class="phase-head"><div class="phase-title"><div class="phase-num">${p.id.replace('P','')}</div><div><h3>${p.title}</h3><div class="phase-desc">${p.desc}</div></div></div><div class="phase-meta"><strong>${done}/${p.tasks.length}</strong><span>${Math.round(done/p.tasks.length*100)}% complete</span></div></div><div class="task-list"></div>`;
     const list=sec.querySelector('.task-list');
-    visible.forEach(({t,i,id})=>{
+    visible.forEach(({t,id})=>{
       const row=document.createElement('label');row.className='task'+(state[id]?' done':'');
       row.innerHTML=`<input type="checkbox" ${state[id]?'checked':''}><div><div class="title">${t[0]}</div><div class="note">${t[1]}</div></div><span class="task-tag">${t[2]}</span>`;
       row.querySelector('input').addEventListener('change',e=>{state[id]=e.target.checked;localStorage.setItem(stateKey,JSON.stringify(state));render();});
