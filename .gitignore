@@ -1,0 +1,7 @@
+.DS_Store
+Thumbs.db
+*.dwg.bak
+*.sv$
+*.blend1
+*.blend2
+node_modules/
