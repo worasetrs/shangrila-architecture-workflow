@@ -13,7 +13,7 @@
       <div>
         <div class="eyebrow">SHANGRI-LA HUA HIN · DESIGN COORDINATION</div>
         <h1>Architecture Control Board</h1>
-        <p class="lede">เช็กลิสต์ตั้งแต่แก้แบบ 2D ให้ตรงกับ 3D ล่าสุด → สร้างโมเดล Blender → ตรวจแบบ → ออกชุดแบบสถาปัตยกรรมทั้งหมด</p>
+        <p class="lede">เช็กลิสต์ตั้งแต่สร้าง AutoCAD จาก PDF → ตรวจ mismatch กับภาพ 3D ล่าสุด → แก้แบบที่ยืนยันแล้ว → สร้าง Blender ใหม่ → ออกชุดแบบสถาปัตยกรรมทั้งหมด</p>
         <div class="hero-actions">
           <button id="exportBtn" class="primary">Export progress</button>
           <button id="resetBtn" class="ghost">Reset checkboxes</button>
@@ -35,13 +35,13 @@
   <main>
     <section class="notice">
       <strong>เป้าหมายสุดท้าย</strong>
-      <span>DWG/PDF แบบสถาปัตยกรรมที่ปรับตาม Design Intent ล่าสุด + โมเดล 3D Blender ที่อ้างอิงมิติจริง + revision/mismatch log ที่ตรวจสอบย้อนกลับได้</span>
+      <span>DWG/PDF แบบสถาปัตยกรรมที่อ้างอิงมิติจาก source จริง + Blender model ที่สร้างใหม่จากแบบ + revision/mismatch log ที่ตรวจสอบย้อนกลับได้</span>
     </section>
 
     <section class="facts">
-      <article><span>Current main building</span><strong>7 ชั้น · 35 ห้อง</strong></article>
-      <article><span>Known main grid</span><strong>14.00 × 19.50 m</strong></article>
-      <article><span>Known roof level</span><strong>ประมาณ +23.00 m</strong></article>
+      <article><span>Editable 3D source</span><strong>ไม่มี</strong></article>
+      <article><span>3D/render role</span><strong>Visual intent only</strong></article>
+      <article><span>Dimension authority</span><strong>PDF / approved revision</strong></article>
       <article><span>Workflow principle</span><strong>Architecture freeze ก่อน MEP</strong></article>
     </section>
 
@@ -54,20 +54,20 @@
     <section class="design-intent panel">
       <div class="panel-head">
         <div>
-          <div class="eyebrow">LATEST 3D → DRAWING GAP</div>
-          <h2>Mismatch Register — จุดที่ต้อง resolve ก่อนเริ่มเขียนแบบจริง</h2>
+          <div class="eyebrow">RENDER REFERENCE → DRAWING GAP</div>
+          <h2>Mismatch Register — จุดที่ต้องตรวจจาก PDF ก่อนตัดสินใจแก้</h2>
         </div>
-        <span class="badge warn">Verify in source model</span>
+        <span class="badge warn">Verify in PDF/source</span>
       </div>
       <div class="mismatch-grid">
-        <article><b>01 · อาคารหลักฝั่งขวา</b><p>massing / façade / balcony / side wall / roof profile ใน 3D ล่าสุดดูไม่ตรงกับรูปด้านและแปลนชุดเดิม ต้องเทียบด้วย Top/Front/Side Orthographic จากโมเดลจริง</p></article>
-        <article><b>02 · อาคารฝั่งซ้าย</b><p>3D ล่าสุดแสดงอาคารเป็นองค์ประกอบหลักชัดเจน ต้องมีชุดแบบของอาคารนี้เอง ไม่ควรดัดแบบอาคารขวาไปใช้แทน</p></article>
-        <article><b>03 · Pavilion กลาง</b><p>ตำแหน่งและสัดส่วนอาคารกระจกส่วนกลางต้อง export footprint จาก 3D แล้ว overlay กับ site plan</p></article>
-        <article><b>04 · Guardhouse / ทางเข้า</b><p>3D ล่าสุดใช้ป้อมยามขนาดเล็กและ barrier ชิดทางเข้า ต้องแก้ driveway, turning, curb/island และ setback ที่เกี่ยวข้อง</p></article>
-        <article><b>05 · Pods / อาคารย่อย</b><p>มีอาคารย่อยรอบอาคารฝั่งขวาที่ไม่ชัดในชุดแบบเดิม ต้องกำหนดหน้าที่และสร้าง plan/elevation/section เมื่อเป็นงานก่อสร้างจริง</p></article>
-        <article><b>06 · Parking / circulation</b><p>รูปแบบช่องจอดและทางรถวิ่งใน 3D ดูต่างจาก master/site plan เดิม ต้องนับและตรวจระยะจริงใหม่ทั้งหมด</p></article>
-        <article><b>07 · Pool / landscape</b><p>concept ใกล้เคียงเดิม แต่ shape/deck/island/ระยะจากอาคารต้อง trace จาก top view ของโมเดลใหม่ ไม่ใช้ภาพ perspective กะระยะ</p></article>
-        <article><b>08 · Source version</b><p>ไฟล์ master plan ที่แยกออกมากับ site plan ในชุดสถาปัตย์ใช้มาตราส่วนต่างกัน จึงต้องตั้ง Revision Baseline ว่าไฟล์ใดเป็นตัวล่าสุดก่อนแก้</p></article>
+        <article><b>01 · อาคารฝั่งขวา</b><p>ตรวจ massing / façade / balcony / side wall / roof profile เทียบกับ plan/elevation/section ใน PDF ก่อน ถ้าดูต่างจากภาพ 3D ให้บันทึก mismatch โดยยังไม่สรุปว่าต้องแก้ทั้งอาคาร</p></article>
+        <article><b>02 · อาคารฝั่งซ้าย</b><p>ตรวจว่า source drawing ของอาคารนี้อยู่ในไฟล์ใดและตรงกับภาพ 3D แค่ไหน ห้ามฟันธงว่าต้องสร้างแบบใหม่จนกว่าจะตรวจ source ครบ</p></article>
+        <article><b>03 · Pavilion กลาง</b><p>ตรวจตำแหน่งและสัดส่วนจาก PDF/site plan ก่อน ภาพ perspective ใช้เป็น visual target แต่ไม่ใช้วัด footprint</p></article>
+        <article><b>04 · Guardhouse / ทางเข้า</b><p>ใช้ภาพล่าสุดตรวจรูปลักษณ์และองค์ประกอบ แต่ driveway, turning, curb/island, setback ต้องอ้างจากแบบหรือค่าที่ผู้ใช้ยืนยัน</p></article>
+        <article><b>05 · Pods / อาคารย่อย</b><p>ตรวจว่ามีในชุด PDF หรือไม่ ถ้าไม่มีให้เปิด issue และขอ scope/function ก่อนเขียน plan/elevation/section</p></article>
+        <article><b>06 · Parking / circulation</b><p>ถ้าภาพ render ดูต่างจาก master/site plan ให้ตรวจจำนวนช่องจอดและแนวทางวิ่งจาก source ก่อน ไม่กะระยะจากภาพ</p></article>
+        <article><b>07 · Pool / landscape</b><p>ใช้ PDF/site plan เป็นฐาน geometry และใช้ภาพ render เป็น design reference สำหรับรูปทรง/บรรยากาศที่ต้องการ</p></article>
+        <article><b>08 · Source version</b><p>ต้องกำหนด baseline ว่า Master Plan, Architectural PDF และภาพ reference ใดเป็นฉบับที่ใช้อ้างในแต่ละเรื่อง พร้อมบันทึกใน SOURCE_REGISTER</p></article>
       </div>
     </section>
 
@@ -93,7 +93,7 @@
       <div class="deliverables">
         <div><b>CAD</b><span>DWG แยกตามอาคาร + Site + Details + sheet set</span></div>
         <div><b>PDF</b><span>Issued architectural drawing set ครบทุกแผ่น</span></div>
-        <div><b>3D</b><span>.blend master model + linked assets + clean collections</span></div>
+        <div><b>3D</b><span>.blend master model ที่สร้างใหม่จากแบบ + linked assets</span></div>
         <div><b>Exchange</b><span>DXF/DWG + FBX/OBJ/IFC (ถ้าทีมอื่นต้องใช้)</span></div>
         <div><b>QA</b><span>mismatch log, revision log, source register, issue register</span></div>
         <div><b>Render</b><span>orthographic review views + draft/final presentation renders</span></div>
